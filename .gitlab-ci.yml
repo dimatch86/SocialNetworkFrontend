@@ -1,0 +1,63 @@
+stages:
+  - push
+  - build
+  
+cache:
+  paths:
+    - node_modules/
+
+docker_push:
+  image: docker:20.10.7
+  stage: push
+  tags:
+    - students
+
+  only:
+    - dev
+  except:
+    - tags
+  before_script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  script:
+    - echo "OK"
+    - docker build --no-cache -f Dockerfile -t "$DOCKER_USERNAME/zerone_front_prod":latest .
+    - docker push "$DOCKER_USERNAME/zerone_front_prod":latest
+    
+build:
+  image: bukmopbacob/docker-jpt-24:0.0.9
+  tags:
+    - students
+  
+  only:
+    - dev
+  except:
+    - tags
+  stage: build
+  when: always
+  script:
+    - ls
+    #- npm install
+    #- npm run build
+  artifacts:
+    paths:
+      - /builds/javapro24/javapro_teams_frontend_original/
+# deploy:
+#   stage: deploy
+#   only:
+#     - dev
+#   except:
+#     - tags
+#   before_script:
+#     - eval $(ssh-agent -s)
+#     - echo "$SSH_PRIVATE_KEY" | ssh-add -
+#     - mkdir -p ~/.ssh
+#     - chmod 700 ~/.ssh
+#     - ssh-keyscan $DEV_HOST >> ~/.ssh/known_hosts
+#     - chmod 644 ~/.ssh/known_hosts
+#   script:
+#     - ssh $DEV_USER@$DEV_HOST docker-compose stop vue_js_container
+#     - ssh $DEV_USER@$DEV_HOST docker-compose rm -f vue_js_container
+#     - ssh $DEV_USER@$DEV_HOST  cp -r web web.bac
+#     - ssh $DEV_USER@$DEV_HOST  rm -rf web
+#     - scp -pr dist $DEV_USER@$DEV_HOST:$DEV_APP_PATH/web
+#     - ssh $DEV_USER@$DEV_HOST docker-compose up -d
