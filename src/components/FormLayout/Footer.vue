@@ -21,7 +21,7 @@ export default {
       if (lang === 'en') return 'English'
     },
     redirectFunc() {
-      window.location.href = "http://zerone-network.ru:8086/api/v1/admin/support/choice";
+      window.location.href = "http://zerone-net.ru:8086/api/v1/admin/support/choice";
     },
 
     year() {
